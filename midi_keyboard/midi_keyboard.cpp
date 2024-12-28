@@ -4,98 +4,81 @@
 #include "hardware/pio.h"
 #include "hardware/uart.h"
 
-// Data will be copied from src to dst
-const char src[] = "Hello, world! (from DMA)";
-char dst[count_of(src)];
-
 #include "blink.pio.h"
-
-void blink_pin_forever(PIO pio, uint sm, uint offset, uint pin, uint freq) {
-    blink_program_init(pio, sm, offset, pin);
-    pio_sm_set_enabled(pio, sm, true);
-
-    printf("Blinking pin %d at %d Hz\n", pin, freq);
-
-    // PIO counter program takes 3 more cycles in total than we pass as
-    // input (wait for n + 1; mov; jmp)
-    pio->txf[sm] = (125000000 / (2 * freq)) - 3;
-}
-
-// UART defines
-// By default the stdout UART is `uart0`, so we will use the second one
-#define UART_ID uart1
-#define BAUD_RATE 115200
-
-// Use pins 4 and 5 for UART1
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define UART_TX_PIN 4
-#define UART_RX_PIN 5
-
 
 
 int main()
-{
+{    
     stdio_init_all();
 
-    // Get a free channel, panic() if there are none
-    int chan = dma_claim_unused_channel(true);
-    
-    // 8 bit transfers. Both read and write address increment after each
-    // transfer (each pointing to a location in src or dst respectively).
-    // No DREQ is selected, so the DMA transfers as fast as it can.
-    
-    dma_channel_config c = dma_channel_get_default_config(chan);
-    channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
-    channel_config_set_read_increment(&c, true);
-    channel_config_set_write_increment(&c, true);
-    
-    dma_channel_configure(
-        chan,          // Channel to be configured
-        &c,            // The configuration we just created
-        dst,           // The initial write address
-        src,           // The initial read address
-        count_of(src), // Number of transfers; in this case each is 1 byte.
-        true           // Start immediately.
-    );
-    
-    // We could choose to go and do something else whilst the DMA is doing its
-    // thing. In this case the processor has nothing else to do, so we just
-    // wait for the DMA to finish.
-    dma_channel_wait_for_finish_blocking(chan);
-    
-    // The DMA has now copied our text from the transmit buffer (src) to the
-    // receive buffer (dst), so we can print it out from there.
-    puts(dst);
+    unsigned int *mrgTriggerPins = new unsigned int[8] {19, 20, 21, 22, 25, 26, 27, 28};
+    unsigned int mNumberOfTriggerPins = 8;
+    unsigned int* mrgEchoPins = new unsigned int[16] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    unsigned int mNumberOfEchoPins = 16;
+    uint16_t *mrgStatusBits = new uint16_t[mNumberOfTriggerPins]();
 
-    // PIO Blinking example
-    PIO pio = pio0;
-    uint offset = pio_add_program(pio, &blink_program);
-    printf("Loaded program at %d\n", offset);
-    
-    #ifdef PICO_DEFAULT_LED_PIN
-    blink_pin_forever(pio, 0, offset, PICO_DEFAULT_LED_PIN, 3);
-    #else
-    blink_pin_forever(pio, 0, offset, 6, 3);
-    #endif
-    // For more pio examples see https://github.com/raspberrypi/pico-examples/tree/master/pio
+    for (unsigned int i = 0; i < mNumberOfTriggerPins; i++)
+    {
+       gpio_init(mrgTriggerPins[i]); 
+       gpio_set_dir(mrgTriggerPins[i], GPIO_OUT);
+       gpio_put(mrgTriggerPins[i], 1);
+       mrgStatusBits[i] = 0;
+    }
+    for (unsigned int i = 0; i < mNumberOfEchoPins; i++)
+    {
+       gpio_init(mrgEchoPins[i]); 
+       gpio_set_dir(mrgEchoPins[i], GPIO_IN);
+       gpio_pull_up(mrgEchoPins[i]);
+    }
 
-    // Set up our UART
-    uart_init(UART_ID, BAUD_RATE);
-    // Set the TX and RX pins by using the function select on the GPIO
-    // Set datasheet for more information on function select
-    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-    
-    // Use some the various UART functions to send out data
-    // In a default system, printf will also output via the default UART
-    
-    // Send out a string, with CR/LF conversions
-    uart_puts(UART_ID, " Hello, UART!\n");
-    
-    // For more examples of UART use see https://github.com/raspberrypi/pico-examples/tree/master/uart
+    printf("Started!\n");
+    sleep_ms(1000);
 
-    while (true) {
-        printf("Hello, world!\n");
+    const int Bitmask16Bit[16] = {1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7, 1 << 8, 1 << 9, 1 << 10, 1 << 11, 1 << 12, 1 << 13, 1 << 14, 1 << 15};
+
+    while (true)
+    {
+        printf("Hello world!\n");
         sleep_ms(1000);
+    }
+
+    while (true)
+    {
+        for (unsigned int triggerPinIndex = 0; triggerPinIndex < mNumberOfTriggerPins; triggerPinIndex++)
+        {
+            gpio_put(mrgTriggerPins[triggerPinIndex], 0);
+
+            // Sleep because it wil take some time to drop the pin
+            // We want to sleep 80 ns
+            //https://forums.raspberrypi.com/viewtopic.php?t=304922
+            // Pico runs at 125 MHZ so one clock cycle is 8ns. So we need 80/8 = 10 nops
+            //__asm volatile ("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n");
+            __asm volatile ("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n");
+
+            uint16_t EchoPins = ~(gpio_get_all() & 0xFFFF);
+
+            gpio_put(mrgTriggerPins[triggerPinIndex], 1);
+
+            if (mrgStatusBits[triggerPinIndex] != EchoPins)
+            {
+                uint16_t DeltaPins = mrgStatusBits[triggerPinIndex] ^ EchoPins;
+                for (unsigned int i = 0; i < 16; i++)
+                {
+                    int BitMask = Bitmask16Bit[i];
+                    bool HasChanged = (DeltaPins & BitMask) > 0;
+                    if (HasChanged)
+                    {
+                        bool IsRising = ((EchoPins & BitMask) > 0);
+                        if ((DeltaPins & BitMask) > 0)
+                        {
+                            int Index = i + triggerPinIndex * 16;
+                            printf("Index_%d %s\n", Index, IsRising ? "Rising" : "Falling");
+                        }
+                    }     
+                }
+                mrgStatusBits[triggerPinIndex] = EchoPins;
+            }
+
+        }
     }
 }
