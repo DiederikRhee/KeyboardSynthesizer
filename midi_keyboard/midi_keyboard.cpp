@@ -30,6 +30,10 @@ int main()
         pio_sm_set_enabled(pio0, sm, true);
     }
 
+    while (true)
+    {
+    }
+
 
     /*
 

@@ -18,6 +18,7 @@ write:
 end:
     mov y, x            side 0b11 ; Copy X to Y
     irq set 5 rel       side 0b11
+    jmp entry           side 0b11
 
 
 % c-sdk {
