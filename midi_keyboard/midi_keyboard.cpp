@@ -19,12 +19,13 @@ int main()
 
 
     unsigned int *mrgTriggerPins = new unsigned int[8] {19, 20, 21, 22, 25, 26, 27, 28};
+    unsigned int* mrgEchoPins = new unsigned int[16] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     for (unsigned int i = 0; i < 4; i++)
     {
         int sm = pio_claim_unused_sm(pio0, true);
         uint offset = pio_add_program(pio0, &buttonmatrix_program);
 
-        buttonmatrix_program_init(pio0, sm, offset, 1, mrgTriggerPins[i * 2], 0);
+        buttonmatrix_program_init(pio0, sm, offset, 1, mrgTriggerPins[i * 2], mrgEchoPins[0]);
 
         pio_sm_set_enabled(pio0, sm, true);
     }
