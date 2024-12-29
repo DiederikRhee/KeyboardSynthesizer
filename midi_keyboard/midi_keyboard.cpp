@@ -9,7 +9,14 @@
 
 int main()
 {    
-    stdio_init_all();
+    stdio_usb_init();
+
+    // Initialise UART 0
+    //uart_init(uart0, 31250);
+ 
+    // Set the GPIO pin mux to the UART - 0 is TX, 1 is RX
+    gpio_set_function(16, GPIO_FUNC_UART);
+
 
     unsigned int *mrgTriggerPins = new unsigned int[8] {19, 20, 21, 22, 25, 26, 27, 28};
     unsigned int mNumberOfTriggerPins = 8;
@@ -46,7 +53,8 @@ int main()
             //https://forums.raspberrypi.com/viewtopic.php?t=304922
             // Pico runs at 125 MHZ so one clock cycle is 8ns. So we need 80/8 = 10 nops
             //__asm volatile ("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n");
-            __asm volatile ("nop\nnop\nnop\nnop\nnop\nnop\nnop\nnop\n");
+
+            sleep_us(1);
 
             uint16_t EchoPins = ~(gpio_get_all() & 0xFFFF);
 
@@ -65,7 +73,7 @@ int main()
                         if ((DeltaPins & BitMask) > 0)
                         {
                             int Index = i + triggerPinIndex * 16;
-                            printf("Index_%d %s\n", Index, IsRising ? "Rising" : "Falling");
+                            printf("Index_%d Trigger_%d Echo_%d %s\n", Index, triggerPinIndex, i, IsRising ? "Rising" : "Falling");
                         }
                     }     
                 }
