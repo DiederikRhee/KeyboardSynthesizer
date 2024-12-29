@@ -1,0 +1,52 @@
+.program buttonmatrix
+.side_set 2
+
+irq set 4               side 0b11 ; for startup we must set the first irq
+entry:
+    wait 1 irq 4 rel    side 0b11
+    nop                 side 0b10
+    in pins, 16         side 0b10
+    nop                 side 0b11 ; todo wait for all pins to be 0?
+    nop                 side 0b01
+    in pins, 16         side 0b01
+    mov x, isr          side 0b11 ; todo wait for all pins to be 0?
+    mov isr null        side 0b11 ;
+    jmp x!=y write      side 0b11 ; write if x != y
+    jmp end             side 0b11
+write:
+    push block          side 0b11
+end:
+    mov y, x            side 0b11 ; Copy X to Y
+    irq set 5 rel       side 0b11
+
+
+% c-sdk {
+// this is a raw helper function for use by the user which sets up the GPIO output, and configures the SM to output on a particular pin
+
+void buttonmatrix_program_init(PIO pio, uint sm, uint offset, float clk_div, uint trigger_pin_base, uint data_pin)
+{
+    pio_sm_set_consecutive_pindirs(pio, sm, data_pin, 16, false);
+    pio_sm_set_consecutive_pindirs(pio, sm, trigger_pin_base, 2, true);
+
+    pio_sm_config c = buttonmatrix_program_get_default_config(offset);
+    
+    sm_config_set_sideset_pin_base(&c, trigger_pin_base);
+    sm_config_set_in_pins(&c, data_pin);
+
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        pio_gpio_init(pio, trigger_pin_base + i);
+    }
+    for (unsigned int i = 0; i < 16; i++)
+    {
+        pio_gpio_init(pio, data_pin + i);
+    }
+
+    sm_config_set_in_shift(&c, false, false, 16);
+    sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_RX);
+
+    sm_config_set_clkdiv(&c, clk_div);
+    
+    pio_sm_init(pio, sm, offset, &c);
+}
+%}

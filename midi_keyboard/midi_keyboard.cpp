@@ -4,7 +4,7 @@
 #include "hardware/pio.h"
 #include "hardware/uart.h"
 
-#include "blink.pio.h"
+#include "buttonmatrix.pio.h"
 
 
 int main()
@@ -16,6 +16,21 @@ int main()
  
     // Set the GPIO pin mux to the UART - 0 is TX, 1 is RX
     gpio_set_function(16, GPIO_FUNC_UART);
+
+
+    unsigned int *mrgTriggerPins = new unsigned int[8] {19, 20, 21, 22, 25, 26, 27, 28};
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        int sm = pio_claim_unused_sm(pio0, true);
+        uint offset = pio_add_program(pio0, &buttonmatrix_program);
+
+        buttonmatrix_program_init(pio0, sm, offset, 1, mrgTriggerPins[i * 2], 0);
+
+        pio_sm_set_enabled(pio0, sm, true);
+    }
+
+
+    /*
 
 
     unsigned int *mrgTriggerPins = new unsigned int[8] {19, 20, 21, 22, 25, 26, 27, 28};
@@ -81,5 +96,5 @@ int main()
             }
 
         }
-    }
+    }*/
 }
