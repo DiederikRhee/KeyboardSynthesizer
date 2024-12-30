@@ -4,13 +4,12 @@
 irq set 4               side 0b11 ; for startup we must set the first irq
 entry:
     wait 1 irq 4 rel    side 0b11
-    nop                 side 0b10
+    mov isr null        side 0b10
     in pins, 16         side 0b10
     nop                 side 0b11 ; todo wait for all pins to be 0?
     nop                 side 0b01
     in pins, 16         side 0b01
     mov x, isr          side 0b11 ; todo wait for all pins to be 0?
-    mov isr null        side 0b11 ;
     jmp x!=y write      side 0b11 ; write if x != y
     jmp end             side 0b11
 write:
@@ -31,7 +30,7 @@ void buttonmatrix_program_init(PIO pio, uint sm, uint offset, float clk_div, uin
 
     pio_sm_config c = buttonmatrix_program_get_default_config(offset);
     
-    sm_config_set_sideset_pin_base(&c, trigger_pin_base);
+    sm_config_set_sideset_pins(&c, trigger_pin_base);
     sm_config_set_in_pins(&c, data_pin);
 
     for (unsigned int i = 0; i < 2; i++)

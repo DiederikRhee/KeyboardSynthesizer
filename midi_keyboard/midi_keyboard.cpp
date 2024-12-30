@@ -25,7 +25,7 @@ int main()
         int sm = pio_claim_unused_sm(pio0, true);
         uint offset = pio_add_program(pio0, &buttonmatrix_program);
 
-        buttonmatrix_program_init(pio0, sm, offset, 1, mrgTriggerPins[i * 2], mrgEchoPins[0]);
+        buttonmatrix_program_init(pio0, sm, offset, 20, mrgTriggerPins[i * 2], mrgEchoPins[0]);
 
         pio_sm_set_enabled(pio0, sm, true);
     }
