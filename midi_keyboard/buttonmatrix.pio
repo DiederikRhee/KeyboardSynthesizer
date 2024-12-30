@@ -19,6 +19,7 @@ irq set 4               side 0b11      ; for startup we must set the first irq
     jmp x!=y write      side 0b11      ; write if x != y
     jmp end             side 0b11      ; jump to end (for case we didnt write)
 write:
+    push block          side 0b11      ; push isr content into rx fifo
     in y, 32            side 0b11      ; shift old values (32 bit) into isr 
     mov y, x            side 0b11      ; Copy X to Y
     push block          side 0b11      ; push isr content into rx fifo
@@ -52,7 +53,6 @@ void buttonmatrix_program_init(PIO pio, uint sm, uint offset, uint trigger_pin_b
         gpio_pull_up(data_pin + i);
     }
 
-    sm_config_set_in_shift(&c, false, false, 64);
     sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_RX);
 
     sm_config_set_clkdiv(&c, 80); //single step will be (1000000000/125000000)*80 = 640 ns
