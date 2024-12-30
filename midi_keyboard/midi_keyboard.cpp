@@ -7,6 +7,17 @@
 
 #include "buttonmatrix.pio.h"
 
+int8_t keys[128] = {
+    -1,  28, -1, 20, 12, -1,   4, -1,  60, -1,  52, -1,  44, -1,  36, -1,  // 0-15
+    19,  27, 11, -1,  3, -1,  43, -1,  59, -1,  51, -1,  42, -1,  35, -1,  // 16-31
+    18,  26, 10, -1,  2, -1,  41, -1,  58, -1,  50, -1,  40, -1,  34, -1,  // 32-47
+    17,  25,  9, -1,  1, -1,  33, -1,  57, -1,  49, -1,  39, -1,  32, -1,  // 48-63
+    16,  24,  8, -1,  0, -1,  31, -1,  56, -1,  48, -1,  38, -1,  30, -1,  // 64-79
+    15,  23,  7, -1, -1, -1,  55, -1,  47, -1,  37, -1,  29, -1,  14, -1,  // 80-95
+    -1,  22,  6, -1, -1, -1,  54, -1,  46, -1,  36, -1,  28, -1,  13, -1,  // 96-111
+    20,  -1,  5, -1, 53, -1,  45, -1,  35, -1,  27, -1,  12, -1,  -1, -1   // 112-127
+};
+
 void pio_irq_handler()
 {
     for (uint sm = 0; sm < 4; sm++)
@@ -37,13 +48,24 @@ void pio_irq_handler()
                     for (uint i = 0; i < 32; ++i)
                     {
                         uint fullIndex = i + 32 * sm;
+                        if (keys[fullIndex] < 0)
+                        {
+                            continue;
+                        }
+                        
+                        uint8_t pitch = keys[fullIndex] + 36;
+
                         if (risingBits & (1 << i))
                         {
-                            printf("%03d rising\n", fullIndex);
+                            //printf("%03d rising\n", fullIndex);
+                            tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 0}, 3);
+                            //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 0}, 3);
                         }
                         else if (fallingBits & (1 << i))
                         {
-                            printf("%03d falling\n", fullIndex);
+                            //printf("%03d falling\n", fullIndex);
+                            tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 127}, 3);
+                            //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 127}, 3);
                         }
                     }
                 }
