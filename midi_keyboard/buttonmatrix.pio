@@ -15,15 +15,15 @@ irq set 4               side 0b11      ; for startup we must set the first irq
     nop                 side 0b11 [6]  ; reset the first trigger and for signal to settle
     nop                 side 0b01      ; put second trigger bit low
     in pins, 16         side 0b01      ; shift second read into isr
-    mov x, isr          side 0b11 [3]  ; move isr to x and for signal to settle (only wait 3 because we for sure have 3 cycles before next)
+    mov x, isr          side 0b11 [4]  ; move isr to x and for signal to settle (only wait 4 because we for sure have 2 cycles before next)
     jmp x!=y write      side 0b11      ; write if x != y
     jmp end             side 0b11      ; jump to end (for case we didnt write)
 write:
+    mov y, x            side 0b11      ; Copy X to Y
     in y, 32            side 0b11      ; shift old values (32 bit) into isr 
     push block          side 0b11      ; push isr content into rx fifo
     irq nowait 0 rel    side 0b11      ; set irq flag  
 end:
-    mov y, x            side 0b11      ; Copy X to Y
     irq set 5 rel       side 0b11      ; set trigger for next sm to start
 .wrap
 
