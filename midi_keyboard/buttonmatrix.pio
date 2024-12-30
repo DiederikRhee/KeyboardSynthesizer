@@ -2,7 +2,7 @@
 .side_set 2
 
 irq set 4               side 0b11 ; for startup we must set the first irq
-entry:
+.wrap_target
     wait 1 irq 4 rel    side 0b11
     mov isr null        side 0b10
     in pins, 16         side 0b10
@@ -17,7 +17,7 @@ write:
 end:
     mov y, x            side 0b11 ; Copy X to Y
     irq set 5 rel       side 0b11
-    jmp entry           side 0b11
+.wrap
 
 
 % c-sdk {
@@ -36,6 +36,7 @@ void buttonmatrix_program_init(PIO pio, uint sm, uint offset, float clk_div, uin
     for (unsigned int i = 0; i < 2; i++)
     {
         pio_gpio_init(pio, trigger_pin_base + i);
+        gpio_put(trigger_pin_base + i, 1);
     }
     for (unsigned int i = 0; i < 16; i++)
     {
