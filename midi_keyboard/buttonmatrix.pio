@@ -3,20 +3,21 @@
 
 irq set 4               side 0b11 ; for startup we must set the first irq
 .wrap_target
-    wait 1 irq 4 rel    side 0b11
-    mov isr null        side 0b10
-    in pins, 16         side 0b10
-    nop                 side 0b11 ; todo wait for all pins to be 0?
-    nop                 side 0b01
-    in pins, 16         side 0b01
+    wait 1 irq 4 rel    side 0b11 ; wait for trigger to start
+    mov isr null        side 0b10 ; clear isr and put first trigger bit low
+    in pins, 16         side 0b10 ; shift first read into isr
+    nop                 side 0b11 ; reset the first trigger
+    nop                 side 0b01 ; put second trigger bit low
+    in pins, 16         side 0b01 ; shift second read into isr
     mov x, isr          side 0b11 ; todo wait for all pins to be 0?
     jmp x!=y write      side 0b11 ; write if x != y
-    jmp end             side 0b11
+    jmp end             side 0b11 ; jump to end (for case we didnt write)
 write:
-    push block          side 0b11
+    in y, 32            side 0b11 ; shift old values (32 bit) into isr 
+    push block          side 0b11 ; push isr content into rx fifo
 end:
     mov y, x            side 0b11 ; Copy X to Y
-    irq set 5 rel       side 0b11
+    irq set 5 rel       side 0b11 ; set trigger for next sm to start
 .wrap
 
 
