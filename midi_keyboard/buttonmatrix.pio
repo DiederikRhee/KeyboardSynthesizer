@@ -1,30 +1,36 @@
 .program buttonmatrix
 .side_set 2
 
-irq set 4               side 0b11 ; for startup we must set the first irq
+
+; Trigger divider is set to 80. So cycle step time will be 640 ns.
+; We need to wait at least 40 ns after trigger to make sure signal is available
+; We need to wait at least 3700 ns after trigger drop for signal to settle (reset)
+; So we will delay 6 cycles: 6*640 = 3840
+
+irq set 4               side 0b11      ; for startup we must set the first irq
 .wrap_target
-    wait 1 irq 4 rel    side 0b11 ; wait for trigger to start
-    mov isr null        side 0b10 ; clear isr and put first trigger bit low
-    in pins, 16         side 0b10 ; shift first read into isr
-    nop                 side 0b11 ; reset the first trigger
-    nop                 side 0b01 ; put second trigger bit low
-    in pins, 16         side 0b01 ; shift second read into isr
-    mov x, isr          side 0b11 ; todo wait for all pins to be 0?
-    jmp x!=y write      side 0b11 ; write if x != y
-    jmp end             side 0b11 ; jump to end (for case we didnt write)
+    wait 1 irq 4 rel    side 0b11      ; wait for trigger to start
+    mov isr null        side 0b10      ; clear isr and put first trigger bit low
+    in pins, 16         side 0b10      ; shift first read into isr
+    nop                 side 0b11 [6]  ; reset the first trigger and for signal to settle
+    nop                 side 0b01      ; put second trigger bit low
+    in pins, 16         side 0b01      ; shift second read into isr
+    mov x, isr          side 0b11 [3]  ; move isr to x and for signal to settle (only wait 3 because we for sure have 3 cycles before next)
+    jmp x!=y write      side 0b11      ; write if x != y
+    jmp end             side 0b11      ; jump to end (for case we didnt write)
 write:
-    in y, 32            side 0b11 ; shift old values (32 bit) into isr 
-    push block          side 0b11 ; push isr content into rx fifo
+    in y, 32            side 0b11      ; shift old values (32 bit) into isr 
+    push block          side 0b11      ; push isr content into rx fifo
 end:
-    mov y, x            side 0b11 ; Copy X to Y
-    irq set 5 rel       side 0b11 ; set trigger for next sm to start
+    mov y, x            side 0b11      ; Copy X to Y
+    irq set 5 rel       side 0b11      ; set trigger for next sm to start
 .wrap
 
 
 % c-sdk {
 // this is a raw helper function for use by the user which sets up the GPIO output, and configures the SM to output on a particular pin
 
-void buttonmatrix_program_init(PIO pio, uint sm, uint offset, float clk_div, uint trigger_pin_base, uint data_pin)
+void buttonmatrix_program_init(PIO pio, uint sm, uint offset, uint trigger_pin_base, uint data_pin)
 {
     pio_sm_set_consecutive_pindirs(pio, sm, data_pin, 16, false);
     pio_sm_set_consecutive_pindirs(pio, sm, trigger_pin_base, 2, true);
@@ -47,7 +53,7 @@ void buttonmatrix_program_init(PIO pio, uint sm, uint offset, float clk_div, uin
     sm_config_set_in_shift(&c, false, false, 16);
     sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_RX);
 
-    sm_config_set_clkdiv(&c, clk_div);
+    sm_config_set_clkdiv(&c, 80); //single step will be (1000000000/125000000)*80 = 640 ns
     
     pio_sm_init(pio, sm, offset, &c);
 }

@@ -41,7 +41,7 @@ int main()
     for (unsigned int i = 0; i < 4; i++)
     {
         int sm = pio_claim_unused_sm(pio0, true);
-        buttonmatrix_program_init(pio0, sm, offset, 20, mrgTriggerPins[i * 2], mrgEchoPins[0]);
+        buttonmatrix_program_init(pio0, sm, offset, mrgTriggerPins[i * 2], mrgEchoPins[0]);
     }
 
     // start from end to start
