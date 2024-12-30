@@ -1,10 +1,26 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
-#include "hardware/dma.h"
 #include "hardware/pio.h"
+#include "hardware/irq.h"
 #include "hardware/uart.h"
 
 #include "buttonmatrix.pio.h"
+
+void pio_irq_handler() {
+    for (uint sm = 0; sm < 4; sm++)
+    {
+        if (pio_interrupt_get(pio0, sm))
+        { // Check if SM has triggered the interrupt
+            while (!pio_sm_is_rx_fifo_empty(pio0, sm))
+            {
+                uint32_t data = pio_sm_get(pio0, sm); // Read FIFO data
+                // Handle data (e.g., signal main loop, process data, etc.)
+                printf("SM %d data: 0x%08X\n", sm, data);
+            }
+            pio_interrupt_clear(pio0, sm); // Clear interrupt for this state machine
+        }
+    }
+}
 
 
 int main()
@@ -34,6 +50,10 @@ int main()
         pio_sm_set_enabled(pio0, 3 - i, true);
         sleep_ms(100);
     }
+
+    irq_set_exclusive_handler(PIO0_IRQ_0, pio_irq_handler);
+    irq_set_enabled(PIO0_IRQ_0, true);
+    pio_set_irq0_source_mask_enabled(pio0, (1 << pis_interrupt0) | (1<<pis_interrupt1) | (1 << pis_interrupt2) | (1 << pis_interrupt3),true);
 
     while (true)
     {

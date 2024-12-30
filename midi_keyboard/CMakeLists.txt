@@ -58,7 +58,7 @@ target_include_directories(midi_keyboard PRIVATE
 
 # Add any user requested libraries
 target_link_libraries(midi_keyboard 
-        hardware_dma
+        hardware_irq
         hardware_pio
         )
 
