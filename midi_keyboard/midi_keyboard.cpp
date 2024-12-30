@@ -6,7 +6,9 @@
 
 #include "buttonmatrix.pio.h"
 
-void pio_irq_handler() {
+void pio_irq_handler()
+{
+    printf("pio_irq_handler\n");
     for (uint sm = 0; sm < 4; sm++)
     {
         if (pio_interrupt_get(pio0, sm))
@@ -53,10 +55,12 @@ int main()
 
     irq_set_exclusive_handler(PIO0_IRQ_0, pio_irq_handler);
     irq_set_enabled(PIO0_IRQ_0, true);
-    pio_set_irq0_source_mask_enabled(pio0, (1 << pis_interrupt0) | (1<<pis_interrupt1) | (1 << pis_interrupt2) | (1 << pis_interrupt3),true);
+    pio_set_irq0_source_mask_enabled(pio0, (1 << pis_interrupt0) | (1<<pis_interrupt1) | (1 << pis_interrupt2) | (1 << pis_interrupt3), true);
 
     while (true)
     {
+        printf("Hello world\n");
+        sleep_ms(1000);
     }
 
 
