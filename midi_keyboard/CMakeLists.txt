@@ -35,7 +35,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(midi_keyboard midi_keyboard.cpp )
+add_executable(midi_keyboard midi_keyboard.cpp usb_descriptors.c)
 
 pico_set_program_name(midi_keyboard "midi_keyboard")
 pico_set_program_version(midi_keyboard "0.1")
@@ -45,7 +45,7 @@ pico_generate_pio_header(midi_keyboard ${CMAKE_CURRENT_LIST_DIR}/buttonmatrix.pi
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(midi_keyboard 0)
-pico_enable_stdio_usb(midi_keyboard 1)
+pico_enable_stdio_usb(midi_keyboard 0)
 
 # Add the standard library to the build
 target_link_libraries(midi_keyboard
@@ -60,6 +60,8 @@ target_include_directories(midi_keyboard PRIVATE
 target_link_libraries(midi_keyboard 
         hardware_irq
         hardware_pio
+        tinyusb_device
+        tinyusb_board
         )
 
 pico_add_extra_outputs(midi_keyboard)
