@@ -21,6 +21,7 @@ irq set 4               side 0b11      ; for startup we must set the first irq
 write:
     in y, 32            side 0b11      ; shift old values (32 bit) into isr 
     push block          side 0b11      ; push isr content into rx fifo
+    irq nowait 0 rel    side 0b11      ; set irq flag  
 end:
     mov y, x            side 0b11      ; Copy X to Y
     irq set 5 rel       side 0b11      ; set trigger for next sm to start

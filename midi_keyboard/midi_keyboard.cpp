@@ -8,11 +8,11 @@
 
 void pio_irq_handler()
 {
-    printf("pio_irq_handler\n");
     for (uint sm = 0; sm < 4; sm++)
     {
         if (pio_interrupt_get(pio0, sm))
-        { // Check if SM has triggered the interrupt
+        {
+            // Check if SM has triggered the interrupt
             while (!pio_sm_is_rx_fifo_empty(pio0, sm))
             {
                 uint32_t data = pio_sm_get(pio0, sm); // Read FIFO data
