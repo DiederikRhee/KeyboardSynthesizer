@@ -126,7 +126,7 @@ void KeyboardKey::SwitchStep(KeyState aNewState, absolute_time_t aTimeStamp)
         case HALF_RELEASING:
         {
             #ifdef DEBUG_USB
-            printf("Noteoff: key=%03d vel=%03d\n", mKeyPitch, Velocity);
+            printf("Noteoff: key=%03d\n", mKeyPitch);
             #else
             tud_midi_stream_write(0,   new uint8_t[3]{0x80, mKeyPitch, 0}, 3);
             uart_write_blocking(uart0, new uint8_t[3]{0x80, mKeyPitch, 0}, 3);

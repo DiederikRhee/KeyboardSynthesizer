@@ -39,7 +39,7 @@ int8_t keys_full[128] = {
     30, -1, -1, 22, -1, 14, -1,  6, -1, -1, -1, 54, -1, 46, -1, 38   // 112-127
 };
 
-std::vector<KeyboardKey*> Keys;
+std::vector<KeyboardKey*> Keys(61);
 
 void pio_irq_handler()
 {
@@ -120,7 +120,7 @@ int main()
 {    
     for (unsigned int i = 0; i < 61; i++)
     {
-        Keys[i] = new KeyboardKey(i);
+        Keys.push_back(new KeyboardKey(i));
     }
 
     #ifdef DEBUG_USB

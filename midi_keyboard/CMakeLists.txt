@@ -41,7 +41,7 @@ endif()
 
 # Add executable. Default name is the project name, version 0.1
 
-set(SOURCES midi_keyboard.cpp)
+set(SOURCES midi_keyboard.cpp KeyboardKey.cpp)
 if (NOT DEBUG_USB)
     list(APPEND SOURCES usb_descriptors.c)
 endif()
