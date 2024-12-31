@@ -33,9 +33,19 @@ project(midi_keyboard C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+set(DEBUG_USB 0)
+
+if (DEBUG_USB)
+add_compile_definitions(DEBUG_USB)
+endif()
+
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(midi_keyboard midi_keyboard.cpp usb_descriptors.c)
+set(SOURCES midi_keyboard.cpp)
+if (NOT DEBUG_USB)
+    list(APPEND SOURCES usb_descriptors.c)
+endif()
+add_executable(midi_keyboard ${SOURCES})
 
 pico_set_program_name(midi_keyboard "midi_keyboard")
 pico_set_program_version(midi_keyboard "0.1")
@@ -45,24 +55,33 @@ pico_generate_pio_header(midi_keyboard ${CMAKE_CURRENT_LIST_DIR}/buttonmatrix.pi
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(midi_keyboard 0)
+
+if (DEBUG_USB)
+pico_enable_stdio_usb(midi_keyboard 1)
+else()
 pico_enable_stdio_usb(midi_keyboard 0)
+endif()
 
 # Add the standard library to the build
 target_link_libraries(midi_keyboard
-        pico_stdlib)
+        pico_stdlib
+        hardware_irq
+        hardware_pio)
 
 # Add the standard include files to the build
-target_include_directories(midi_keyboard PRIVATE
-  ${CMAKE_CURRENT_LIST_DIR}
-)
+#target_include_directories(midi_keyboard PRIVATE
+#  ${CMAKE_CURRENT_LIST_DIR}
+#)
 
-# Add any user requested libraries
-target_link_libraries(midi_keyboard 
-        hardware_irq
-        hardware_pio
-        tinyusb_device
-        tinyusb_board
+if (NOT DEBUG_USB)
+    #target_include_directories(midi_keyboard PRIVATE ${CMAKE_CURRENT_LIST_DIR}/tusb_config.h)
+    target_include_directories(midi_keyboard PRIVATE ${CMAKE_CURRENT_LIST_DIR}) #todo? only include tusb_config.h...
+
+    target_link_libraries(midi_keyboard 
+            tinyusb_device
+            tinyusb_board
         )
+endif()
 
 pico_add_extra_outputs(midi_keyboard)
 

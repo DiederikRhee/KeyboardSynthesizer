@@ -2,8 +2,13 @@
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 
+#ifdef DEBUG_USB
+#include <stdio.h>
+#include "pico/stdlib.h"
+#else
 #include "bsp/board.h"
 #include "tusb.h"
+#endif
 
 #include "buttonmatrix.pio.h"
 
@@ -60,29 +65,38 @@ void pio_irq_handler()
 
                     for (uint i = 0; i < 32; ++i)
                     {
-                        uint fullIndex = i + 32 * sm;
-                        if (keys_half[fullIndex] < 0)
-                        {
-                            continue;
-                        }
-                        
-                        uint8_t pitch = keys_half[fullIndex] + 36;
+                        if ((diffBits & (1 << i)) == 0) continue;
 
-                        if (risingBits & (1 << i))
+                        uint fullIndex = i + 32 * sm;
+
+                        bool isHalfKey = keys_half[fullIndex] >= 0;
+                        bool isFullKey = keys_full[fullIndex] >= 0;
+                        if (!isHalfKey && !isFullKey) continue;
+
+                        bool isRising = risingBits & (1 << i);
+                        int8_t keyIndex = isHalfKey ? keys_half[fullIndex] : keys_full[fullIndex];
+
+
+                        #ifdef DEBUG_USB
+                        printf("%03d %s %s\n", keyIndex, isHalfKey ? "half" : "full", isRising ? "rising" : "falling");
+                        #else
+                        uint8_t pitch = keyIndex + 36;
+                        if (isHalfKey)
                         {
-                            //printf("%03d rising\n", fullIndex);
-                            tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 0}, 3);
-                            //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 0}, 3);
+                            if (!isRising)
+                            {
+                                tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 127}, 3);
+                                //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 127}, 3);
+                            }
+                            else
+                            {
+                                tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 0}, 3);
+                                //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 0}, 3);
+                            }
                         }
-                        else if (fallingBits & (1 << i))
-                        {
-                            //printf("%03d falling\n", fullIndex);
-                            tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 127}, 3);
-                            //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 127}, 3);
-                        }
+                        #endif
                     }
                 }
-                
                 rx_level -= 2;
             }
             pio_interrupt_clear(pio0, sm); // Clear interrupt for this state machine
@@ -93,8 +107,12 @@ void pio_irq_handler()
 
 int main()
 {    
+    #ifdef DEBUG_USB
+    stdio_usb_init();    
+    #else
     board_init();
     tusb_init();
+    #endif
 
     // Initialise UART 0
     uart_init(uart0, 31250);
@@ -125,6 +143,8 @@ int main()
 
     while (true)
     {
+        #ifndef DEBUG_USB
         tud_task(); // tinyusb device task
+        #endif
     }
 }
