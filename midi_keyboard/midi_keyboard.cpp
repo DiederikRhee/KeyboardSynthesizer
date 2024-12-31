@@ -2,6 +2,8 @@
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 
+#include <vector>
+
 #ifdef DEBUG_USB
 #include <stdio.h>
 #include "pico/stdlib.h"
@@ -11,6 +13,7 @@
 #endif
 
 #include "buttonmatrix.pio.h"
+#include "KeyboardKey.h"
 
 int8_t keys_half[128] = {
 //   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
@@ -36,8 +39,11 @@ int8_t keys_full[128] = {
     30, -1, -1, 22, -1, 14, -1,  6, -1, -1, -1, 54, -1, 46, -1, 38   // 112-127
 };
 
+std::vector<KeyboardKey*> Keys;
+
 void pio_irq_handler()
 {
+    absolute_time_t timestamp = get_absolute_time();
     for (uint sm = 0; sm < 4; sm++)
     {
         if (pio_interrupt_get(pio0, sm))
@@ -74,27 +80,32 @@ void pio_irq_handler()
                         if (!isHalfKey && !isFullKey) continue;
 
                         bool isRising = risingBits & (1 << i);
-                        int8_t keyIndex = isHalfKey ? keys_half[fullIndex] : keys_full[fullIndex];
 
-
-                        #ifdef DEBUG_USB
-                        printf("%03d %s %s\n", keyIndex, isHalfKey ? "half" : "full", isRising ? "rising" : "falling");
-                        #else
-                        uint8_t pitch = keyIndex + 36;
+                        KeyboardKey::KeyCommand command;
                         if (isHalfKey)
                         {
-                            if (!isRising)
+                            if (isRising)
                             {
-                                tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 127}, 3);
-                                //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 127}, 3);
+                                command = KeyboardKey::HALF_RELEASED;
                             }
-                            else
+                            else //isFalling
                             {
-                                tud_midi_stream_write(0,   new uint8_t[3]{0x90, pitch, 0}, 3);
-                                //uart_write_blocking(uart0, new uint8_t[3]{0x90, pitch, 0}, 3);
+                                command = KeyboardKey::HALF_PRESSED;
                             }
                         }
-                        #endif
+                        else //isFullKey
+                        {
+                            if (isRising)
+                            {
+                                command = KeyboardKey::FULL_RELEASED;
+                            }
+                            else //isFalling
+                            {
+                                command = KeyboardKey::FULL_PRESSED;
+                            }
+                        }
+                        int8_t keyIndex = isHalfKey ? keys_half[fullIndex] : keys_full[fullIndex];
+                        Keys[keyIndex]->HandleCommand(command, timestamp);
                     }
                 }
                 rx_level -= 2;
@@ -107,6 +118,11 @@ void pio_irq_handler()
 
 int main()
 {    
+    for (unsigned int i = 0; i < 61; i++)
+    {
+        Keys[i] = new KeyboardKey(i);
+    }
+
     #ifdef DEBUG_USB
     stdio_usb_init();    
     #else
