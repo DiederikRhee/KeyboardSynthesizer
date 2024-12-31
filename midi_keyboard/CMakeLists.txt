@@ -68,14 +68,10 @@ target_link_libraries(midi_keyboard
         hardware_irq
         hardware_pio)
 
-# Add the standard include files to the build
-#target_include_directories(midi_keyboard PRIVATE
-#  ${CMAKE_CURRENT_LIST_DIR}
-#)
+target_include_directories(midi_keyboard PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 
 if (NOT DEBUG_USB)
-    #target_include_directories(midi_keyboard PRIVATE ${CMAKE_CURRENT_LIST_DIR}/tusb_config.h)
-    target_include_directories(midi_keyboard PRIVATE ${CMAKE_CURRENT_LIST_DIR}) #todo? only include tusb_config.h...
+    target_include_directories(midi_keyboard PRIVATE ${CMAKE_CURRENT_LIST_DIR}/usbmidi)
 
     target_link_libraries(midi_keyboard 
             tinyusb_device
