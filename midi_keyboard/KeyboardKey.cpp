@@ -9,10 +9,10 @@
 
 //#include "MidiOut.h"
 
-static uint8_t MinVelocity = 5;
+static uint8_t MinVelocity = 20;
 static uint8_t MaxVelocity = 127;
-static float FastestKeyTimeMicros = 2500;   //MinVelocity
-static float SlowestKeyTimeMicros = 100000;   //MaxVelocity
+static float FastestKeyTimeMicros = 5000;   //MinVelocity
+static float SlowestKeyTimeMicros = 80000;   //MaxVelocity
 static float KeyTimeMultiplier = ((MaxVelocity - MinVelocity) / (SlowestKeyTimeMicros - FastestKeyTimeMicros));
 
 
