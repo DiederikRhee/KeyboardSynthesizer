@@ -39,7 +39,7 @@ int8_t keys_full[128] = {
     30, -1, -1, 22, -1, 14, -1,  6, -1, -1, -1, 54, -1, 46, -1, 38   // 112-127
 };
 
-std::vector<KeyboardKey*> Keys(61);
+std::vector<KeyboardKey*> Keys;
 
 void pio_irq_handler()
 {

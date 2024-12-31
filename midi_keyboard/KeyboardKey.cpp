@@ -9,11 +9,11 @@
 
 //#include "MidiOut.h"
 
-static uint8_t MinVelocity = 30;
+static uint8_t MinVelocity = 5;
 static uint8_t MaxVelocity = 127;
-static uint32_t FastestKeyTimeMicros = 10000;   //MinVelocity
-static uint32_t SlowestKeyTimeMicros = 40000;   //MaxVelocity
-static float KeyTimeMultiplier = ((MaxVelocity - MinVelocity) / ((float)SlowestKeyTimeMicros - (float)FastestKeyTimeMicros));
+static float FastestKeyTimeMicros = 2500;   //MinVelocity
+static float SlowestKeyTimeMicros = 100000;   //MaxVelocity
+static float KeyTimeMultiplier = ((MaxVelocity - MinVelocity) / (SlowestKeyTimeMicros - FastestKeyTimeMicros));
 
 
 KeyboardKey::KeyboardKey(unsigned int aKeyIndex)
@@ -138,7 +138,7 @@ void KeyboardKey::SwitchStep(KeyState aNewState, absolute_time_t aTimeStamp)
 
          case FULL:
          {
-            int64_t DeltaTime = absolute_time_diff_us(mHalfStateTime, aTimeStamp);
+            float DeltaTime = (float)absolute_time_diff_us(mHalfStateTime, aTimeStamp);
             uint8_t Velocity = MinVelocity;
             if (DeltaTime > FastestKeyTimeMicros && DeltaTime < SlowestKeyTimeMicros)
             {
@@ -151,7 +151,7 @@ void KeyboardKey::SwitchStep(KeyState aNewState, absolute_time_t aTimeStamp)
 
 
             #ifdef DEBUG_USB
-            printf("Noteon: key=%03d vel=%03d dt=%ld\n", mKeyPitch, Velocity, DeltaTime);
+            printf("Noteon: key=%03d vel=%03d dt=%f\n", mKeyPitch, Velocity, DeltaTime);
             #else
             tud_midi_stream_write(0,   new uint8_t[3]{0x90, mKeyPitch, Velocity}, 3);
             uart_write_blocking(uart0, new uint8_t[3]{0x90, mKeyPitch, Velocity}, 3);
