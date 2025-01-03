@@ -102,25 +102,9 @@ boolean CKernel::Initialize (void)
 
 	if (bOK)
 	{
-		const char *pSoundDevice = m_Options.GetSoundDevice ();
-		assert (pSoundDevice);
-		if (strcmp (pSoundDevice, "sndi2s") == 0)
-		{
-			m_pSynthesizer = new CMiniSynthesizerI2S (&m_Config, &m_Interrupt,
+		m_pSynthesizer = new CMiniSynthesizerI2S (&m_Config, &m_Interrupt,
 								  &m_I2CMaster);
-		}
-#if RASPPI >= 4
-		else if (strcmp (pSoundDevice, "sndusb") == 0)
-		{
-			m_pSynthesizer = new CMiniSynthesizerUSB (&m_Config, &m_Interrupt);
-		}
-#endif
-		else
-		{
-			m_pSynthesizer = new CMiniSynthesizerPWM (&m_Config, &m_Interrupt);
-		}
 
-		assert (m_pSynthesizer);
 		bOK = m_pSynthesizer->Initialize ();
 	}
 

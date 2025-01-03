@@ -96,24 +96,6 @@ protected:
 #endif
 };
 
-//// PWM //////////////////////////////////////////////////////////////////////
-
-class CMiniSynthesizerPWM : public CMiniSynthesizer, public CPWMSoundBaseDevice
-{
-public:
-	CMiniSynthesizerPWM (CSynthConfig *pConfig, CInterruptSystem *pInterrupt);
-
-	boolean Start (void);
-	boolean IsActive (void);
-
-private:
-	unsigned GetChunk (u32 *pBuffer, unsigned nChunkSize);
-
-private:
-	unsigned m_nMaxLevel;
-	unsigned m_nNullLevel;
-	boolean m_bChannelsSwapped;
-};
 
 //// I2S //////////////////////////////////////////////////////////////////////
 
@@ -134,29 +116,5 @@ private:
 	int m_nMaxLevel;
 	boolean m_bChannelsSwapped;
 };
-
-//// USB //////////////////////////////////////////////////////////////////////
-
-#if RASPPI >= 4
-
-class CMiniSynthesizerUSB : public CMiniSynthesizer, public CUSBSoundBaseDevice
-{
-public:
-	CMiniSynthesizerUSB (CSynthConfig *pConfig, CInterruptSystem *pInterrupt);
-
-	boolean Start (void);
-	boolean IsActive (void);
-
-private:
-	unsigned GetChunk (s16 *pBuffer, unsigned nChunkSize);
-	unsigned GetChunk (u32 *pBuffer, unsigned nChunkSize);
-
-private:
-	int m_nMinLevel;
-	int m_nMaxLevel;
-	boolean m_bChannelsSwapped;
-};
-
-#endif
 
 #endif
