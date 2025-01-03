@@ -30,7 +30,6 @@
 #include "synthconfig.h"
 #include "patch.h"
 #include "midikeyboard.h"
-#include "pckeyboard.h"
 #include "serialmididevice.h"
 #include "voicemanager.h"
 #include "config.h"
@@ -77,7 +76,6 @@ private:
 
 	CMIDIKeyboard m_MIDIKeyboard0;
 	CMIDIKeyboard m_MIDIKeyboard1;
-	CPCKeyboard   m_Keyboard;
 
 	CSerialMIDIDevice m_SerialMIDI;
 	boolean m_bUseSerial;

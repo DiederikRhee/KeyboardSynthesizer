@@ -32,7 +32,6 @@ CMiniSynthesizer::CMiniSynthesizer (CSynthConfig *pConfig, CInterruptSystem *pIn
 :	m_pConfig (pConfig),
 	m_MIDIKeyboard0 (this, pConfig, 0),
 	m_MIDIKeyboard1 (this, pConfig, 1),
-	m_Keyboard (this),
 	m_SerialMIDI (this, pInterrupt, pConfig),
 	m_bUseSerial (FALSE),
 	m_nConfigRevisionWrite (0),
@@ -67,8 +66,6 @@ void CMiniSynthesizer::Process (boolean bPlugAndPlayUpdated)
 {
 	m_MIDIKeyboard0.Process (bPlugAndPlayUpdated);
 	m_MIDIKeyboard1.Process (bPlugAndPlayUpdated);
-
-	m_Keyboard.Process (bPlugAndPlayUpdated);
 
 	if (m_bUseSerial)
 	{
