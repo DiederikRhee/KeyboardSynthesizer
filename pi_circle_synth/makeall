@@ -17,10 +17,6 @@ cd Properties
 make $1 $2 || exit
 cd ..
 
-cd lvgl
-make $1 $2 || exit
-cd ..
-
 cd ..
 
 cd ..

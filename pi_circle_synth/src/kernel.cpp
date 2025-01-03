@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 #include "kernel.h"
-#include "mainwindow.h"
 #include "config.h"
 #include <circle/machineinfo.h>
 #include <circle/string.h>
@@ -34,7 +33,6 @@ CKernel::CKernel (void)
 	m_I2CMaster (CMachineInfo::Get ()->GetDevice (DeviceI2CMaster), TRUE),
 	m_USBHCI (&m_Interrupt, &m_Timer, TRUE),
 	m_EMMC (&m_Interrupt, &m_Timer, &m_ActLED),
-	m_GUI (&m_Screen, &m_Interrupt),
 	m_Config (&m_FileSystem),
 	m_pSynthesizer (0)
 {
@@ -105,8 +103,6 @@ boolean CKernel::Initialize (void)
 	if (bOK)
 	{
 		m_RPiTouchScreen.Initialize ();
-
-		bOK = m_GUI.Initialize ();
 	}
 
 	if (bOK)
@@ -167,9 +163,6 @@ TShutdownMode CKernel::Run (void)
 
 	m_pSynthesizer->Start ();
 
-	CMainWindow MainWindow (m_pSynthesizer, &m_Config);
-	m_GUI.Update (FALSE);
-
 #ifndef SCREENSHOT_AFTER_SECS
 	while (m_pSynthesizer->IsActive ())
 #else
@@ -180,18 +173,8 @@ TShutdownMode CKernel::Run (void)
 
 		m_pSynthesizer->Process (bUpdated);
 
-		if (m_pSynthesizer->ConfigUpdated ())
-		{
-			MainWindow.UpdateAllParameters (TRUE);
-		}
-
-		m_GUI.Update (bUpdated);
-
 		m_CPUThrottle.Update ();
 
-#ifdef SHOW_STATUS
-		MainWindow.UpdateStatus (m_pSynthesizer->GetStatus ());
-#endif
 	}
 
 #ifdef SCREENSHOT_AFTER_SECS
