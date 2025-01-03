@@ -34,7 +34,6 @@
 #include <circle/i2cmaster.h>
 #include <circle/usb/usbhcidevice.h>
 #include <SDCard/emmc.h>
-#include <circle/input/rpitouchscreen.h>
 #include <fatfs/ff.h>
 #include <circle/types.h>
 #include "synthconfig.h"
@@ -57,10 +56,6 @@ public:
 
 	TShutdownMode Run (void);
 
-private:
-#ifdef SCREENSHOT_AFTER_SECS
-	void SaveScreenshot (void);
-#endif
 
 private:
 	// do not change this order
@@ -78,7 +73,6 @@ private:
 	CI2CMaster		m_I2CMaster;
 	CUSBHCIDevice		m_USBHCI;
 	CEMMCDevice		m_EMMC;
-	CRPiTouchScreen		m_RPiTouchScreen;
 
 	FATFS			m_FileSystem;
 	CSynthConfig		m_Config;

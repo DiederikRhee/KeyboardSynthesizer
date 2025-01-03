@@ -102,11 +102,6 @@ boolean CKernel::Initialize (void)
 
 	if (bOK)
 	{
-		m_RPiTouchScreen.Initialize ();
-	}
-
-	if (bOK)
-	{
 		const char *pSoundDevice = m_Options.GetSoundDevice ();
 		assert (pSoundDevice);
 		if (strcmp (pSoundDevice, "sndi2s") == 0)
@@ -163,11 +158,8 @@ TShutdownMode CKernel::Run (void)
 
 	m_pSynthesizer->Start ();
 
-#ifndef SCREENSHOT_AFTER_SECS
+
 	while (m_pSynthesizer->IsActive ())
-#else
-	while (m_Timer.GetUptime () < SCREENSHOT_AFTER_SECS)
-#endif
 	{
 		boolean bUpdated = m_USBHCI.UpdatePlugAndPlay ();
 
@@ -177,37 +169,7 @@ TShutdownMode CKernel::Run (void)
 
 	}
 
-#ifdef SCREENSHOT_AFTER_SECS
-	SaveScreenshot ();
-#endif
 
 	return ShutdownHalt;
 }
 
-#ifdef SCREENSHOT_AFTER_SECS
-
-void CKernel::SaveScreenshot (void)
-{
-	CBcmFrameBuffer *pFrameBuffer = m_Screen.GetFrameBuffer ();
-
-	for (unsigned i = 0; i < 20; i++)
-	{
-		CString Filename;
-		Filename.Format ("%sscreenshot%ux%ux%u.%03u", DRIVE, pFrameBuffer->GetWidth (),
-				pFrameBuffer->GetHeight (), pFrameBuffer->GetDepth (), i);
-
-		FIL File;
-		if (f_open (&File, Filename, FA_WRITE | FA_CREATE_NEW) == FR_OK)
-		{
-			unsigned nBytesWritten;
-			f_write (&File, (void *) (uintptr) pFrameBuffer->GetBuffer (),
-				pFrameBuffer->GetSize (), &nBytesWritten);
-
-			f_close (&File);
-
-			return;
-		}
-	}
-}
-
-#endif
