@@ -30,8 +30,6 @@ static const char FromMiniSynth[] = "synth";
 
 CMiniSynthesizer::CMiniSynthesizer (CSynthConfig *pConfig, CInterruptSystem *pInterrupt)
 :	m_pConfig (pConfig),
-	m_MIDIKeyboard0 (this, pConfig, 0),
-	m_MIDIKeyboard1 (this, pConfig, 1),
 	m_SerialMIDI (this, pInterrupt, pConfig),
 	m_bUseSerial (FALSE),
 	m_nConfigRevisionWrite (0),
@@ -64,9 +62,6 @@ boolean CMiniSynthesizer::Initialize (void)
 
 void CMiniSynthesizer::Process (boolean bPlugAndPlayUpdated)
 {
-	m_MIDIKeyboard0.Process (bPlugAndPlayUpdated);
-	m_MIDIKeyboard1.Process (bPlugAndPlayUpdated);
-
 	if (m_bUseSerial)
 	{
 		m_SerialMIDI.Process ();

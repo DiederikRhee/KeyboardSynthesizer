@@ -29,7 +29,6 @@
 #include <circle/types.h>
 #include "synthconfig.h"
 #include "patch.h"
-#include "midikeyboard.h"
 #include "serialmididevice.h"
 #include "voicemanager.h"
 #include "config.h"
@@ -73,9 +72,6 @@ protected:
 
 private:
 	CSynthConfig *m_pConfig;
-
-	CMIDIKeyboard m_MIDIKeyboard0;
-	CMIDIKeyboard m_MIDIKeyboard1;
 
 	CSerialMIDIDevice m_SerialMIDI;
 	boolean m_bUseSerial;
