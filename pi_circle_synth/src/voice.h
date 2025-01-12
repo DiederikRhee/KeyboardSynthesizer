@@ -22,12 +22,9 @@
 #ifndef _voice_h
 #define _voice_h
 
-#include "oscillator.h"
-#include "mixer.h"
 #include "envelopegenerator.h"
-#include "filter.h"
-#include "amplifier.h"
-#include "patch.h"
+#include "keysamplefatfsfile.h"
+
 #include <circle/types.h>
 
 enum TVoiceState
@@ -38,42 +35,22 @@ enum TVoiceState
 	VoiceStateUnknown
 };
 
-class CVoice
+class CVoice : public CKeySampleFatFsFile
 {
 public:
-	CVoice (void);
+	CVoice (u8 aSampleKeyNumber);
 	~CVoice (void);
 
-	void SetPatch (CPatch *pPatch);
-
-	void NoteOn (u8 ucKeyNumber, u8 ucVelocity);	// MIDI key number and velocity
+	void NoteOn (u8 ucVelocity);	// MIDI key number and velocity
 	void NoteOff (void);
 
 	TVoiceState GetState (void) const;
-	u8 GetKeyNumber (void) const;			// returns KEY_NUMBER_NONE if voice is unused
-#define KEY_NUMBER_NONE		255
-
+	u8 GetSampleKeyNumber (void) const;			// returns KEY_NUMBER_NONE if voice is unused
 	void NextSample (void);
 	float GetOutputLevel (void) const;
 
 private:
-	// VCO
-	COscillator m_LFO_VCO;
-	COscillator m_VCO;
-	COscillator m_VCO2;
-	CMixer m_VCO_Mixer;
-
-	// VCF
-	COscillator m_LFO_VCF;
-	CEnvelopeGenerator m_EG_VCF;
-	CFilter m_VCF;
-
-	// VCA
-	COscillator m_LFO_VCA;
-	CEnvelopeGenerator m_EG_VCA;
-	CAmplifier m_VCA;
-
-	u8 m_ucKeyNumber;
+	CEnvelopeGenerator mEnvelopeGen;
 };
 
 #endif

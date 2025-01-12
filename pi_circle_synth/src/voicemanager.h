@@ -30,39 +30,10 @@
 #include "reverbmodule.h"
 #include "config.h"
 
-#ifdef ARM_ALLOW_MULTI_CORE
-	#define VOICES		(VOICES_PER_CORE * CORES)
-#else
-	#define VOICES		VOICES_PER_CORE
-#endif
-
-#ifdef ARM_ALLOW_MULTI_CORE
-
-enum TCoreStatus
-{
-	CoreStatusInit,
-	CoreStatusIdle,
-	CoreStatusBusy,
-	CoreStatusExit,
-	CoreStatusUnknown
-};
-
-#endif
-
-// Except Run() and ProcessVoices() everything herein runs on core 0.
-// m_CoreStatus[] is used to synchronize the secondary cores from core 0. Normally
-// m_CoreStatus[] is CoreStatusIdle for all secondary cores and they are spinning
-// to wait until this status changes to CoreStatusBusy. This is triggered in
-// NextSample(), where the major workload is done. Each core processes the same
-// number of voices by calling ProcessVoices() and sums up their current output level
-// to m_fOutputLevel[]. These levels are mixed together when GetOutputLevel() gets
-// called from CMiniSynthesizer::GetChunk(). When the secondary cores have done
-// their work they go back to CoreStatusIdle to be triggered again.
+#define VOICES		61
+#define NOTE_KEY_OFFSET 32
 
 class CVoiceManager
-#ifdef ARM_ALLOW_MULTI_CORE
-	: public CMultiCoreSupport
-#endif
 {
 public:
 	CVoiceManager (CMemorySystem *pMemorySystem);
@@ -70,34 +41,16 @@ public:
 
 	boolean Initialize (void);
 
-#ifdef ARM_ALLOW_MULTI_CORE
-	void Run (unsigned nCore);			// secondary core entry
-#endif
-
-	void SetPatch (CPatch *pPatch);
-
 	void NoteOn (u8 ucKeyNumber, u8 ucVelocity);	// MIDI key number and velocity
 	void NoteOff (u8 ucKeyNumber);
 
-	void NextSample (void);
-	float GetOutputLevelLeft (void) const;
-	float GetOutputLevelRight (void) const;
+	float Sample(void);
 
 private:
-	float ProcessVoices (unsigned nFirst, unsigned nLast);
+	int MidiKeyToSampleKey(u8 ucKeyNumber);
 
 private:
 	CVoice *m_pVoice[VOICES];
-
-	unsigned m_nLastNoteOnVoice;
-
-#ifdef ARM_ALLOW_MULTI_CORE
-	volatile TCoreStatus m_CoreStatus[CORES];
-
-	volatile float m_fOutputLevel[CORES];
-#endif
-
-	CReverbModule m_ReverbModule;
 };
 
 #endif

@@ -1,7 +1,8 @@
 #include "keysamplefatfsfile.h"
+#include <circle/string.h>
 
-CKeySampleFatFsFile::CKeySampleFatFsFile (const char *apFileName)
-:	mFileName (apFileName)
+CKeySampleFatFsFile::CKeySampleFatFsFile (u8 aSampleKeyNumber)
+:	mSampleKeyNumber(aSampleKeyNumber)
 {
 	mFileReadingSucceeded = Load();
 }
@@ -16,15 +17,16 @@ boolean CKeySampleFatFsFile::Load (void)
 	FRESULT Result;
 	FIL File;
 
-	if (mFileName.GetLength () == 0) return FALSE;
+	CString fileName;
+	fileName.Format("%d.bin", (int)mSampleKeyNumber);
 
-	Result = f_open (&File, mFileName, FA_READ | FA_OPEN_EXISTING);
+	Result = f_open (&File, fileName.c_str(), FA_READ | FA_OPEN_EXISTING);
 	if (Result != FR_OK) return FALSE;
 
 	FSIZE_t sizeBytes = f_size(&File);
-	mrgpSamplesSize = sizeBytes / sizeof(float);
+	mSamplesSize = sizeBytes / sizeof(float);
 
-	mrgpSamples = new float[mrgpSamplesSize]();
+	mrgpSamples = new float[mSamplesSize]();
 
 	unsigned int nBytesRead = 0;
 

@@ -25,29 +25,30 @@
 #define _keysamplefatfsfile_h
 
 #include <fatfs/ff.h>
-#include <circle/string.h>
 #include <circle/types.h>
 
 class CKeySampleFatFsFile
 {
 public:
-	CKeySampleFatFsFile (const char *apFileName);
+	CKeySampleFatFsFile (u8 aSampleKeyNumber);
 	~CKeySampleFatFsFile (void);
 
 	boolean Get_FileReadingSucceeded(void) { return mFileReadingSucceeded; }
+
+	size_t Get_SamplesSize(void) const { return mSamplesSize; }
 
 private:
 	boolean Load (void);		// may be partially loaded on error
 
 
 private:
-	CString mFileName;
-
 	boolean mFileReadingSucceeded;
 
 	float* mrgpSamples;
 
-	size_t mrgpSamplesSize;
+	size_t mSamplesSize;
+
+	u8 mSampleKeyNumber;
 };
 
 #endif
