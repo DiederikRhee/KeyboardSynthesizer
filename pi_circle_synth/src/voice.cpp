@@ -24,13 +24,10 @@
 CVoice::CVoice (u8 aSampleKeyNumber)
 :	CKeySampleFatFsFile(aSampleKeyNumber)
 {
-
-	//mEnvelopeGen.SetAttack (pPatch->GetParameter (EGVCAAttack));
-	//mEnvelopeGen.SetDecay (pPatch->GetParameter (EGVCADecay));
-	//mEnvelopeGen.SetSustain (pPatch->GetParameter (EGVCASustain) / 100.0);
-	//mEnvelopeGen.SetRelease (pPatch->GetParameter (EGVCARelease));
-
-	//mAmp.SetModulationVolume (pPatch->GetParameter (VCAModulationVolume) / 100.0);
+	mEnvelopeGen.SetAttack (100);
+	mEnvelopeGen.SetDecay (400);
+	mEnvelopeGen.SetSustain (1);
+	mEnvelopeGen.SetRelease (100);
 }
 
 CVoice::~CVoice (void)
@@ -39,7 +36,8 @@ CVoice::~CVoice (void)
 
 void CVoice::NoteOn (u8 ucVelocity)
 {
-	//mEnvelopeGen.NoteOn (fVelocityLevel);
+	float fVelocityLevel = ucVelocity / 127.0;
+	mEnvelopeGen.NoteOn (fVelocityLevel);
 }
 
 void CVoice::NoteOff (void)
@@ -72,5 +70,7 @@ TVoiceState CVoice::GetState (void) const
 float CVoice::Sample (void)
 {
 	mEnvelopeGen.NextSample();
-	return mEnvelopeGen.GetOutputLevel();
+
+	float sampleLevel = 0;
+	return mEnvelopeGen.GetOutputLevel() * sampleLevel;
 }
