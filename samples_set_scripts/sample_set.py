@@ -17,6 +17,8 @@ testfiles = []
 
 sampleRate = 48000
 
+maxValue = 0
+
 # Find matching files and extract the note and number
 matching_files_with_details = []
 for root, dirs, files in os.walk(folder):
@@ -41,6 +43,9 @@ for root, dirs, files in os.walk(folder):
             sampleSetKeys.append(noteKey)
             testfiles.append(file)
 
+            maxValue = max(maxValue, abs(combined.max()))
+            maxValue = max(maxValue, abs(combined.min()))
+
 sampleSetKeys = np.array(sampleSetKeys)
 sortedIndexes = np.argsort(sampleSetKeys)
 
@@ -54,12 +59,8 @@ def pitch_shift(sample, original_note, target_note):
 
 
 def write_wave_file(data, samplerate, name):
-    scale1 = np.iinfo(np.int16).max / data.max() 
-    scale2 = np.iinfo(np.int16).min / data.min()
-    scale = min(scale1, scale2)
-
+    scale = np.iinfo(np.int16).max 
     scaled_data = np.int16(data * scale)  # Convert to 16-bit PCM
-
     wavfile.write(name, samplerate, scaled_data)
 
 def write_data_file(data, name):
@@ -70,7 +71,7 @@ def write_data_file(data, name):
 for noteKey in range (61):
     sortedindices = np.argsort(np.abs(sampleSetKeys - noteKey))
 
-    sample = sampleSet[sortedindices[0]]
+    sample = sampleSet[sortedindices[0]] / maxValue
     if (sampleSetKeys[sortedindices[0]] != noteKey):
         sample = pitch_shift(sample, sampleSetKeys[sortedindices[0]], noteKey)
     #write_wave_file(sample, sampleRate, f"{noteKey}.wav")
