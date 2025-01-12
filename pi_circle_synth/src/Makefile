@@ -7,7 +7,7 @@
 CIRCLEHOME ?= ../circle
 
 OBJS	= main.o kernel.o minisynth.o mididevice.o \
-	  midikeyboard.o serialmididevice.o voicemanager.o \
+	  midikeyboard.o serialmididevice.o voicemanager.o keysamplefatfsfile.o \
 	  voice.o oscillator.o mixer.o filter.o amplifier.o envelopegenerator.o \
 	  reverbmodule.o synthconfig.o patch.o parameter.o velocitycurve.o midiccmap.o \
 
