@@ -21,14 +21,13 @@
 #define _mididevice_h
 
 #include <circle/types.h>
-#include "synthconfig.h"
 
 class CMiniSynthesizer;
 
 class CMIDIDevice
 {
 public:
-	CMIDIDevice (CMiniSynthesizer *pSynthesizer, CSynthConfig *pConfig);
+	CMIDIDevice (CMiniSynthesizer *pSynthesizer);
 	~CMIDIDevice (void);
 
 protected:
@@ -36,7 +35,6 @@ protected:
 
 private:
 	CMiniSynthesizer *m_pSynthesizer;
-	CSynthConfig *m_pConfig;
 };
 
 #endif

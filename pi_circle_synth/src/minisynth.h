@@ -27,8 +27,6 @@
 #include <circle/sound/usbsoundbasedevice.h>
 #include <circle/string.h>
 #include <circle/types.h>
-#include "synthconfig.h"
-#include "patch.h"
 #include "serialmididevice.h"
 #include "voicemanager.h"
 #include "config.h"
@@ -43,7 +41,7 @@
 class CMiniSynthesizer
 {
 public:
-	CMiniSynthesizer (CSynthConfig *pConfig, CInterruptSystem *pInterrupt);
+	CMiniSynthesizer (CInterruptSystem *pInterrupt);
 	virtual ~CMiniSynthesizer (void);
 
 	boolean Initialize (void);
@@ -52,8 +50,6 @@ public:
 	virtual boolean IsActive (void) = 0;
 
 	void Process (boolean bPlugAndPlayUpdated);
-
-	void SetPatch (CPatch *pPatch);
 
 	void NoteOn (u8 ucKeyNumber, u8 ucVelocity = VELOCITY_DEFAULT);	// MIDI key number and velocity
 	void NoteOff (u8 ucKeyNumber);
@@ -71,8 +67,6 @@ protected:
 	void GlobalUnlock (void);
 
 private:
-	CSynthConfig *m_pConfig;
-
 	CSerialMIDIDevice m_SerialMIDI;
 	boolean m_bUseSerial;
 
@@ -96,7 +90,7 @@ protected:
 class CMiniSynthesizerI2S : public CMiniSynthesizer, public CI2SSoundBaseDevice
 {
 public:
-	CMiniSynthesizerI2S (CSynthConfig *pConfig, CInterruptSystem *pInterrupt,
+	CMiniSynthesizerI2S (CInterruptSystem *pInterrupt,
 			     CI2CMaster *pI2CMaster);
 
 	boolean Start (void);

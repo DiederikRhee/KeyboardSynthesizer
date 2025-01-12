@@ -33,7 +33,6 @@ CKernel::CKernel (void)
 	m_I2CMaster (CMachineInfo::Get ()->GetDevice (DeviceI2CMaster), TRUE),
 	m_USBHCI (&m_Interrupt, &m_Timer, TRUE),
 	m_EMMC (&m_Interrupt, &m_Timer, &m_ActLED),
-	m_Config (&m_FileSystem),
 	m_pSynthesizer (0)
 {
 }
@@ -89,7 +88,7 @@ boolean CKernel::Initialize (void)
 
 	if (bOK)
 	{
-		m_pSynthesizer = new CMiniSynthesizerI2S (&m_Config, &m_Interrupt,
+		m_pSynthesizer = new CMiniSynthesizerI2S (&m_Interrupt,
 								  &m_I2CMaster);
 
 		bOK = m_pSynthesizer->Initialize ();
@@ -108,24 +107,10 @@ TShutdownMode CKernel::Run (void)
 		m_Logger.Write (FromKernel, LogPanic, "Cannot mount drive: %s", DRIVE);
 	}
 
-	// Load global configuration
-	m_Config.Load ();
 
-	// Load all patches
-	for (unsigned i = 0; i < PATCHES; i++)
-	{
-		m_Config.SetActivePatchNumber (i);
-
-		CPatch *pPatch = m_Config.GetActivePatch ();
-		assert (pPatch != 0);
-
-		pPatch->Load ();
-	}
 
 	// Activate patch 0
-	m_Config.SetActivePatchNumber (0);
 	assert (m_pSynthesizer);
-	m_pSynthesizer->SetPatch (m_Config.GetActivePatch ());
 
 	m_pSynthesizer->Start ();
 

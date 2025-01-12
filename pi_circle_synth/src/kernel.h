@@ -36,7 +36,6 @@
 #include <SDCard/emmc.h>
 #include <fatfs/ff.h>
 #include <circle/types.h>
-#include "synthconfig.h"
 #include "minisynth.h"
 
 enum TShutdownMode
@@ -75,7 +74,6 @@ private:
 	CEMMCDevice		m_EMMC;
 
 	FATFS			m_FileSystem;
-	CSynthConfig		m_Config;
 	CMiniSynthesizer	*m_pSynthesizer;
 };
 

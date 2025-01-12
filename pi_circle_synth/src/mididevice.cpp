@@ -27,16 +27,15 @@
 #define MIDI_CONTROL_CHANGE	0b1011
 #define MIDI_PROGRAM_CHANGE	0b1100
 
-CMIDIDevice::CMIDIDevice (CMiniSynthesizer *pSynthesizer, CSynthConfig *pConfig)
-:	m_pSynthesizer (pSynthesizer),
-	m_pConfig (pConfig)
+CMIDIDevice::CMIDIDevice (CMiniSynthesizer *pSynthesizer)
+:	m_pSynthesizer (pSynthesizer)
 {
+
 }
 
 CMIDIDevice::~CMIDIDevice (void)
 {
 	m_pSynthesizer = 0;
-	m_pConfig = 0;
 }
 
 void CMIDIDevice::MIDIMessageHandler (const u8 *pMessage, size_t nLength)
@@ -57,7 +56,7 @@ void CMIDIDevice::MIDIMessageHandler (const u8 *pMessage, size_t nLength)
 	u8 ucKeyNumber = pMessage[1];
 	u8 ucVelocity  = pMessage[2];
 
-	assert (m_pConfig != 0);
+	/*assert (m_pConfig != 0);
 	CPatch *pPatch = m_pConfig->GetActivePatch ();
 	assert (pPatch != 0);
 	unsigned nMIDIChannel = pPatch->GetParameter (MIDIChannel);
@@ -65,7 +64,7 @@ void CMIDIDevice::MIDIMessageHandler (const u8 *pMessage, size_t nLength)
 	    && nMIDIChannel != (ucChannel + 1U))
 	{
 		return;
-	}
+	}*/
 
 	switch (ucType)
 	{

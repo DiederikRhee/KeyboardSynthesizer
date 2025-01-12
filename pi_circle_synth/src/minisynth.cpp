@@ -28,9 +28,8 @@
 
 static const char FromMiniSynth[] = "synth";
 
-CMiniSynthesizer::CMiniSynthesizer (CSynthConfig *pConfig, CInterruptSystem *pInterrupt)
-:	m_pConfig (pConfig),
-	m_SerialMIDI (this, pInterrupt, pConfig),
+CMiniSynthesizer::CMiniSynthesizer (CInterruptSystem *pInterrupt)
+:	m_SerialMIDI (this, pInterrupt),
 	m_bUseSerial (FALSE),
 	m_nConfigRevisionWrite (0),
 	m_nConfigRevisionRead (0),
@@ -68,23 +67,9 @@ void CMiniSynthesizer::Process (boolean bPlugAndPlayUpdated)
 	}
 }
 
-void CMiniSynthesizer::SetPatch (CPatch *pPatch)
-{
-	assert (pPatch != 0);
-
-	GlobalLock ();
-
-	m_fVolume = powf (pPatch->GetParameter (SynthVolume) / 100.0, 3.3f); // apply some curve
-
-	GlobalUnlock ();
-}
 
 void CMiniSynthesizer::NoteOn (u8 ucKeyNumber, u8 ucVelocity)
 {
-	// apply velocity curve
-	assert (m_pConfig != 0);
-	ucVelocity = m_pConfig->MapVelocity (ucVelocity);
-
 	GlobalLock ();
 
 	m_VoiceManager.NoteOn (ucKeyNumber, ucVelocity);
@@ -116,7 +101,7 @@ boolean CMiniSynthesizer::ConfigUpdated (void)
 
 void CMiniSynthesizer::ControlChange (u8 ucFunction, u8 ucValue)
 {
-	assert (m_pConfig != 0);
+	/*assert (m_pConfig != 0);
 	TSynthParameter Parameter = m_pConfig->MapMIDICC (ucFunction);
 	if (Parameter >= SynthParameterUnknown)
 	{
@@ -133,21 +118,19 @@ void CMiniSynthesizer::ControlChange (u8 ucFunction, u8 ucValue)
 
 	m_nConfigRevisionWrite++;
 
-	GlobalUnlock ();
+	GlobalUnlock ();*/
 }
 
 void CMiniSynthesizer::ProgramChange (u8 ucProgram)
 {
-	assert (m_pConfig != 0);
-
 	GlobalLock ();
 
-	if (ucProgram < PATCHES)
+	/*if (ucProgram < PATCHES)
 	{
-		m_pConfig->SetActivePatchNumber (ucProgram);
-		SetPatch (m_pConfig->GetActivePatch ());
+		//m_pConfig->SetActivePatchNumber (ucProgram);
+		//SetPatch (m_pConfig->GetActivePatch ());
 		m_nConfigRevisionWrite++;
-	}
+	}*/
 
 	GlobalUnlock ();
 }
@@ -176,10 +159,8 @@ void CMiniSynthesizer::GlobalUnlock (void)
 
 //// I2S //////////////////////////////////////////////////////////////////////
 
-CMiniSynthesizerI2S::CMiniSynthesizerI2S (CSynthConfig *pConfig,
-					  CInterruptSystem *pInterrupt,
-					  CI2CMaster *pI2CMaster)
-:	CMiniSynthesizer (pConfig, pInterrupt),
+CMiniSynthesizerI2S::CMiniSynthesizerI2S (CInterruptSystem *pInterrupt, CI2CMaster *pI2CMaster)
+:	CMiniSynthesizer (pInterrupt),
 	CI2SSoundBaseDevice (pInterrupt, SAMPLE_RATE, 2048, FALSE, pI2CMaster, DAC_I2C_ADDRESS),
 	m_nMinLevel (GetRangeMin ()+1),
 	m_nMaxLevel (GetRangeMax ()-1),

@@ -8,8 +8,8 @@ CIRCLEHOME ?= ../circle
 
 OBJS	= main.o kernel.o minisynth.o mididevice.o \
 	  serialmididevice.o voicemanager.o keysamplefatfsfile.o \
-	  voice.o oscillator.o mixer.o filter.o amplifier.o envelopegenerator.o \
-	  reverbmodule.o synthconfig.o patch.o parameter.o velocitycurve.o midiccmap.o \
+	  voice.o envelopegenerator.o \
+	  parameter.o velocitycurve.o \
 
 LIBS	= $(CIRCLEHOME)/addon/Properties/libproperties.a \
 	  $(CIRCLEHOME)/addon/fatfs/libfatfs.a \

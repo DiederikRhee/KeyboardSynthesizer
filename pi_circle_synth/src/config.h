@@ -30,8 +30,6 @@
 
 #define VELOCITY_DEFAULT	80		// for PC keyboard (max. 127)
 
-#define PATCHES			48		// number of configurable patches, don't change
-
 #define DRIVE			"SD:"		// drive to use
 
 // configurable options

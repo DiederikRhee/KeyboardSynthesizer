@@ -25,9 +25,7 @@
 #include <circle/multicore.h>
 #include <circle/memory.h>
 #include <circle/types.h>
-#include "patch.h"
 #include "voice.h"
-#include "reverbmodule.h"
 #include "config.h"
 
 #define VOICES		61

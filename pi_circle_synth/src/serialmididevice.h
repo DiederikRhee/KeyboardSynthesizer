@@ -30,8 +30,7 @@ class CMiniSynthesizer;
 class CSerialMIDIDevice : public CMIDIDevice
 {
 public:
-	CSerialMIDIDevice (CMiniSynthesizer *pSynthesizer, CInterruptSystem *pInterrupt,
-			   CSynthConfig *pConfig);
+	CSerialMIDIDevice (CMiniSynthesizer *pSynthesizer, CInterruptSystem *pInterrupt);
 	~CSerialMIDIDevice (void);
 
 	boolean Initialize (void);
