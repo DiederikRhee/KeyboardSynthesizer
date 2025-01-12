@@ -75,7 +75,7 @@ for noteKey in range (61):
     if (sampleSetKeys[sortedindices[0]] != noteKey):
         sample = pitch_shift(sample, sampleSetKeys[sortedindices[0]], noteKey)
     #write_wave_file(sample, sampleRate, f"{noteKey}.wav")
-    write_data_file(sample, f"{noteKey}.bin")
+    write_data_file(sample, f"samples_piano/{noteKey}.bin")
 
 
  
