@@ -53,19 +53,6 @@ boolean CKernel::Initialize (void)
 
 	if (bOK)
 	{
-		static const char Msg[] = "Starting ...\n";
-		m_Screen.Write (Msg, sizeof Msg-1);
-	}
-
-#if 0
-	if (bOK)
-	{
-		bOK = m_Serial.Initialize (115200);
-	}
-#endif
-
-	if (bOK)
-	{
 		CDevice *pTarget = m_DeviceNameService.GetDevice (m_Options.GetLogDevice (), FALSE);
 		if (pTarget == 0)
 		{

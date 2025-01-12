@@ -68,18 +68,9 @@ TVoiceState CVoice::GetState (void) const
 	}
 }
 
-u8 CVoice::GetKeyNumber (void) const
-{
-	return mEnvelopeGen.GetState () != EnvelopeStateIdle ? m_ucKeyNumber : KEY_NUMBER_NONE;
-}
 
-void CVoice::NextSample (void)
+float CVoice::Sample (void)
 {
-	mEnvelopeGen.NextSample ();
-	mAmp.NextSample ();
-}
-
-float CVoice::GetOutputLevel (void) const
-{
-	return mAmp.GetOutputLevel ();
+	mEnvelopeGen.NextSample();
+	return mEnvelopeGen.GetOutputLevel();
 }

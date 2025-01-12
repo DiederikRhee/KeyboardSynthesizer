@@ -74,8 +74,6 @@ void CMiniSynthesizer::SetPatch (CPatch *pPatch)
 
 	GlobalLock ();
 
-	m_VoiceManager.SetPatch (pPatch);
-
 	m_fVolume = powf (pPatch->GetParameter (SynthVolume) / 100.0, 3.3f); // apply some curve
 
 	GlobalUnlock ();
@@ -201,10 +199,6 @@ boolean CMiniSynthesizerI2S::IsActive (void)
 
 unsigned CMiniSynthesizerI2S::GetChunk (u32 *pBuffer, unsigned nChunkSize)
 {
-#ifdef SHOW_STATUS
-	unsigned nTicks = CTimer::GetClockTicks ();
-#endif
-
 	GlobalLock ();
 
 	unsigned nResult = nChunkSize;
@@ -213,50 +207,21 @@ unsigned CMiniSynthesizerI2S::GetChunk (u32 *pBuffer, unsigned nChunkSize)
 
 	for (; nChunkSize > 0; nChunkSize -= 2)		// fill the whole buffer
 	{
-		m_VoiceManager.NextSample ();
+		float fsample = m_VoiceManager.Sample ();
 
-		float fLevelLeft = m_VoiceManager.GetOutputLevelLeft ();
-		int nLevelLeft = (int) (fLevelLeft*fVolumeLevel);
-		if (nLevelLeft > (int) m_nMaxLevel)
+		int nLevel = (int) (fsample*fVolumeLevel);
+		if (nLevel > (int) m_nMaxLevel)
 		{
-			nLevelLeft = m_nMaxLevel;
+			nLevel = m_nMaxLevel;
 		}
-		else if (nLevelLeft < m_nMinLevel)
+		else if (nLevel < m_nMinLevel)
 		{
-			nLevelLeft = m_nMinLevel;
-		}
-
-		float fLevelRight = m_VoiceManager.GetOutputLevelRight ();
-		int nLevelRight = (int) (fLevelRight*fVolumeLevel);
-		if (nLevelRight > (int) m_nMaxLevel)
-		{
-			nLevelRight = m_nMaxLevel;
-		}
-		else if (nLevelRight < m_nMinLevel)
-		{
-			nLevelRight = m_nMinLevel;
+			nLevel = m_nMinLevel;
 		}
 
-		// for 2 stereo channels
-		if (!m_bChannelsSwapped)
-		{
-			*pBuffer++ = (u32) nLevelLeft;
-			*pBuffer++ = (u32) nLevelRight;
-		}
-		else
-		{
-			*pBuffer++ = (u32) nLevelRight;
-			*pBuffer++ = (u32) nLevelLeft;
-		}
+		*pBuffer++ = (u32) nLevel;
+		*pBuffer++ = (u32) nLevel;
 	}
-
-#ifdef SHOW_STATUS
-	nTicks = CTimer::GetClockTicks () - nTicks;
-	if (nTicks > m_nMaxDelayTicks)
-	{
-		m_nMaxDelayTicks = nTicks;
-	}
-#endif
 
 	GlobalUnlock ();
 

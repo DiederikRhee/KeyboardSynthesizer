@@ -48,7 +48,7 @@ void CVoiceManager::NoteOn (u8 ucKeyNumber, u8 ucVelocity)
 	int sampleKey = MidiKeyToSampleKey(ucKeyNumber);
 	if (sampleKey < 0) return;
 
-	m_pVoice[sampleKey]->NoteOn (ucKeyNumber, ucVelocity);
+	m_pVoice[sampleKey]->NoteOn (ucVelocity);
 }
 
 void CVoiceManager::NoteOff (u8 ucKeyNumber)
@@ -67,9 +67,7 @@ float CVoiceManager::Sample(void)
 	{
 		if (m_pVoice[i]->GetState () != VoiceStateIdle)
 		{
-			m_pVoice[i]->NextSample ();
-
-			fLevel += m_pVoice[i]->GetOutputLevel ();
+			fLevel += m_pVoice[i]->Sample();
 		}
 	}
 

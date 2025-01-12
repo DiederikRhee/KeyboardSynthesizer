@@ -45,9 +45,7 @@ public:
 	void NoteOff (void);
 
 	TVoiceState GetState (void) const;
-	u8 GetSampleKeyNumber (void) const;			// returns KEY_NUMBER_NONE if voice is unused
-	void NextSample (void);
-	float GetOutputLevel (void) const;
+	float Sample (void);
 
 private:
 	CEnvelopeGenerator mEnvelopeGen;
