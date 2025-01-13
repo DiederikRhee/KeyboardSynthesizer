@@ -34,10 +34,7 @@ CMiniSynthesizer::CMiniSynthesizer (CInterruptSystem *pInterrupt)
 	m_nConfigRevisionWrite (0),
 	m_nConfigRevisionRead (0),
 	m_VoiceManager (CMemorySystem::Get ()),
-	m_fVolume (0.0)
-#ifdef SHOW_STATUS
-	, m_nMaxDelayTicks (0)
-#endif
+	m_fVolume (0.4)
 {
 }
 
@@ -135,16 +132,6 @@ void CMiniSynthesizer::ProgramChange (u8 ucProgram)
 	GlobalUnlock ();
 }
 
-#ifdef SHOW_STATUS
-
-const char *CMiniSynthesizer::GetStatus (void)
-{
-	m_Status.Format ("%u ms", m_nMaxDelayTicks * 1000 / CLOCKHZ);
-
-	return m_Status;
-}
-
-#endif
 
 void CMiniSynthesizer::GlobalLock (void)
 {
