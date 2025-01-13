@@ -9,7 +9,6 @@ CIRCLEHOME ?= ../circle
 OBJS	= main.o kernel.o minisynth.o mididevice.o \
 	  serialmididevice.o voicemanager.o keysamplefatfsfile.o \
 	  voice.o envelopegenerator.o \
-	  parameter.o velocitycurve.o \
 
 LIBS	= $(CIRCLEHOME)/addon/Properties/libproperties.a \
 	  $(CIRCLEHOME)/addon/fatfs/libfatfs.a \
