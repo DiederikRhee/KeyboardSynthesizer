@@ -78,7 +78,7 @@ TVoiceState CVoice::GetState (void) const
 float CVoice::Sample (void)
 {
 	float sampleValue = 0.0f;
-	if (mState == EnvelopeStateIdle) return sampleValue;
+	if (mState == VoiceStateIdle) return sampleValue;
 
 	sampleValue = mrgpSamples[mSamplePositionIndex];
 	mSamplePositionIndex++;
