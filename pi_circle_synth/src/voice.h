@@ -49,6 +49,9 @@ public:
 
 private:
 	CEnvelopeGenerator mEnvelopeGen;
+	size_t mSamplePositionIndex;
+	TVoiceState mState;
+	float mVelocity;
 };
 
 #endif

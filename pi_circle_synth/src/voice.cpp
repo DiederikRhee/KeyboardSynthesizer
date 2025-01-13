@@ -22,7 +22,10 @@
 
 
 CVoice::CVoice (u8 aSampleKeyNumber)
-:	CKeySampleFatFsFile(aSampleKeyNumber)
+:	CKeySampleFatFsFile(aSampleKeyNumber),
+	mSamplePositionIndex(0),
+	mState(VoiceStateIdle),
+	mVelocity(0)
 {
 	mEnvelopeGen.SetAttack (100);
 	mEnvelopeGen.SetDecay (400);
@@ -36,17 +39,23 @@ CVoice::~CVoice (void)
 
 void CVoice::NoteOn (u8 ucVelocity)
 {
-	float fVelocityLevel = ucVelocity / 127.0;
-	mEnvelopeGen.NoteOn (fVelocityLevel);
+	mVelocity = ucVelocity / 127.0;
+	mEnvelopeGen.NoteOn (mVelocity);
+	mSamplePositionIndex = 0;
+	mState = VoiceStateActive;
 }
 
 void CVoice::NoteOff (void)
 {
 	mEnvelopeGen.NoteOff ();
+	mSamplePositionIndex = 0;
+	mState = VoiceStateIdle;
 }
 
 TVoiceState CVoice::GetState (void) const
 {
+	return mState;
+
 	switch (mEnvelopeGen.GetState ())
 	{
 	case EnvelopeStateIdle:
@@ -61,7 +70,6 @@ TVoiceState CVoice::GetState (void) const
 		return VoiceStateRelease;
 
 	default:
-		assert (0);
 		return VoiceStateActive;
 	}
 }
@@ -69,8 +77,21 @@ TVoiceState CVoice::GetState (void) const
 
 float CVoice::Sample (void)
 {
-	mEnvelopeGen.NextSample();
+	float sampleValue = 0.0f;
+	if (mState == EnvelopeStateIdle) return sampleValue;
+
+	sampleValue = mrgpSamples[mSamplePositionIndex];
+	mSamplePositionIndex++;
+	if (mSamplePositionIndex >= mSamplesSize)
+	{
+		mState = VoiceStateIdle;
+	}
+
+	return sampleValue;
+
+
+	/*mEnvelopeGen.NextSample();
 
 	float sampleLevel = 0;
-	return mEnvelopeGen.GetOutputLevel() * sampleLevel;
+	return mEnvelopeGen.GetOutputLevel() * sampleLevel;*/
 }

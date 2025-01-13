@@ -41,7 +41,7 @@ private:
 	boolean Load (void);		// may be partially loaded on error
 
 
-private:
+protected:
 	boolean mFileReadingSucceeded;
 
 	float* mrgpSamples;
